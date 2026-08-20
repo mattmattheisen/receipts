@@ -1,1 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Receipts — the cost of financial advice</title>
+<style>
+:root{
+  --paper:#f4f1e8;
+  --paper-lip:#e2ded1;
+  --ink:#2f2f2d;
+  --ink-mid:#4a4a48;
+  --ink-soft:#5f5e58;
+  --ink-faint:#8a8880;
+  --slot:#232320;
+  --stage:#dcd9d0;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--stage);
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;
+  font-family:var(--mono);
+  color:var(--ink-mid);
+  -webkit-font-smoothing:antialiased;
+  padding:0 0 4rem;
+}
+.stage{max-width:520px;margin:0 auto;padding:0 12px}
 
+.intro{text-align:center;padding:2.5rem 4px 2rem}
+.intro h1{
+  font-size:15px;font-weight:400;letter-spacing:6px;
+  color:var(--ink);margin:0 0 1.25rem;
+}
+.intro p{
+  font-size:15px;line-height:1.65;color:var(--ink-soft);
+  max-width:30ch;margin:0 auto;
+}
+
+.slot{
+  height:16px;background:var(--slot);border-radius:3px;
+  width:calc(32ch + 44px);margin:0 auto;
+}
+
+.paper{
+  width:calc(32ch + 18px);margin:0 auto;background:var(--paper);
+  color:var(--ink-mid);font-size:13px;line-height:1.5;
+  padding:0 9px 26px;
+  animation:feed .75s cubic-bezier(.2,.7,.3,1);
+}
+.paper > div{white-space:pre}
+#entry{white-space:normal}
+.lip{height:5px;background:var(--paper-lip);margin:0 -9px}
+@keyframes feed{from{transform:translateY(-46px)}to{transform:translateY(0)}}
+
+.ctr{text-align:center}
+.ink{color:var(--ink)}
+.soft{color:var(--ink-soft)}
+.sm{font-size:11px;line-height:1.45;color:var(--ink-soft)}
+.sep{color:var(--ink-faint)}
+.gap{height:12px}
+.gap-s{height:6px}
+.row{display:flex;justify-content:space-between;gap:6px}
+.row > span:last-child{white-space:nowrap}
+
+.brand{letter-spacing:5px}
+.tot-lab{font-size:15px;letter-spacing:1.5px;color:var(--ink)}
+.tot-amt{font-size:40px;line-height:1.14;color:var(--ink);text-align:right;margin:2px 0 6px}
+.tot-amt.narrow{font-size:32px}
+.big{font-size:17px;color:var(--ink)}
+
+/* fill-in lines */
+.field-lab{font-size:11px;letter-spacing:.5px;color:var(--ink-soft);padding-top:14px}
+.fill{display:flex;align-items:baseline;gap:5px}
+.fill input{
+  flex:1;min-width:0;height:44px;background:transparent;
+  border:0;border-bottom:1px dotted var(--ink-faint);border-radius:0;
+  font-family:inherit;font-size:16px;color:var(--ink);padding:0 2px;
+}
+.fill input::placeholder{color:var(--ink-faint)}
+.fill input:focus{outline:0;border-bottom:1px solid var(--ink);box-shadow:0 3px 0 -2px var(--ink)}
+.fill .unit{font-size:15px;color:var(--ink-soft)}
+.hint{font-size:11px;color:var(--ink-soft);padding:3px 0 0}
+.err{font-size:11px;color:var(--ink);padding:5px 0 0;white-space:normal}
+
+/* on-paper choice cells */
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{padding:0;color:var(--ink);font-size:13px;white-space:pre-wrap}
+.opt{display:block;cursor:pointer;padding:4px 0;color:var(--ink-mid)}
+.opt input{position:absolute;opacity:0;width:0;height:0}
+.opt .b::before{content:"[ ] "}
+.opt input:checked ~ .b::before{content:"[X] "}
+.opt input:checked ~ .b{color:var(--ink)}
+.opt input:focus-visible ~ .b{box-shadow:0 0 0 2px var(--ink)}
+.inline{display:flex;gap:9px;flex-wrap:wrap}
+
+.controls{text-align:center;padding-top:1.75rem}
+button{
+  font-family:var(--mono);font-size:13px;letter-spacing:1.6px;
+  background:transparent;color:var(--ink);
+  border:1px solid var(--ink-soft);border-radius:2px;
+  padding:15px 26px;cursor:pointer;
+}
+button:hover{background:rgba(0,0,0,.05)}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.linkbtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;margin-top:8px;font-size:13px;
+  color:var(--ink-soft);background:none;border:0;padding:6px 12px;
+  text-decoration:underline;letter-spacing:0;cursor:pointer;
+}
+
+.method{
+  max-width:32ch;margin:2.5rem auto 0;font-size:12px;
+  line-height:1.65;color:var(--ink-soft);white-space:normal;
+}
+.method h2{font-size:12px;letter-spacing:2px;color:var(--ink);margin:0 0 10px;font-weight:400}
+.method code{background:rgba(0,0,0,.05);padding:1px 3px}
+.method p{margin:0 0 10px}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (prefers-reduced-motion:reduce){
+  .paper{animation:none}
+  *{transition:none!important}
+}
+
+@media print{
+  @page{size:3.1in auto;margin:.12in}
+  body{background:#fff;padding:0}
+  .stage{max-width:none;padding:0}
+  .intro,.slot,.controls,.no-print{display:none!important}
+  .paper{width:auto;max-width:2.9in;background:#fff;color:#000;animation:none}
+  .lip{display:none}
+  .sm,.soft,.sep{color:#333}
+  .ink,.tot-lab,.tot-amt,legend{color:#000}
+}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="intro no-print">
+    <h1>RECEIPTS</h1>
+    <p>You get a receipt for a $5 cup of coffee. Why not for $20,000 of financial advice?</p>
+  </div>
+
+  <div class="slot no-print" aria-hidden="true"></div>
+
+  <div class="paper" id="paper">
+    <div class="lip" aria-hidden="true"></div>
+
+    <div class="ctr ink brand" style="padding-top:18px">RECEIPTS</div>
+    <div class="ctr">FINANCIAL ADVICE</div>
+    <div class="ctr sm" id="datestamp" style="padding-top:6px"></div>
+    <div class="gap"></div>
+    <div class="sep">--------------------------------</div>
+
+    <div id="entry">
+      <div class="field-lab"><label for="pv">PORTFOLIO VALUE</label></div>
+      <div class="fill"><span class="unit">$</span><input id="pv" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+
+      <div class="field-lab"><label for="af">ADVISORY FEE</label></div>
+      <div class="fill"><input id="af" inputmode="decimal" autocomplete="off" placeholder="0.00"><span class="unit">%</span></div>
+
+      <div class="field-lab"><label for="er">INVESTMENT EXPENSE RATIO</label></div>
+      <div class="fill"><input id="er" inputmode="decimal" autocomplete="off" placeholder="0.00"><span class="unit">%</span></div>
+      <div class="hint">OPTIONAL &middot; LEAVE BLANK IF UNSURE</div>
+
+      <div class="err" id="entry-err" role="alert"></div>
+      <div class="gap"></div>
+      <div class="sep">--------------------------------</div>
+    </div>
+
+    <div id="strip"></div>
+  </div>
+
+  <div class="controls no-print">
+    <button id="primary">PRINT MY RECEIPT</button>
+    <div><button class="linkbtn" id="restart">Start over</button></div>
+    <div><button class="linkbtn" id="howlink" aria-expanded="false" aria-controls="method">How this works</button></div>
+  </div>
+
+  <div class="method no-print" id="method" hidden>
+    <h2>METHODOLOGY</h2>
+    <p>Every figure here comes from numbers you typed. Receipts does not verify them.</p>
+    <p><code>advisory cost = portfolio value &times; advisory fee rate</code></p>
+    <p><code>investment expense cost = portfolio value &times; weighted average expense ratio</code></p>
+    <p><code>total annual cost = advisory cost + investment expense cost</code></p>
+    <p>Monthly divides the annual total by 12, weekly by 52, daily by 365. These are presentation translations, not separate charges.</p>
+    <p>Cost per meeting divides the annual total by the number of meetings you counted. Cost per hour divides it by the hours you estimated. An advisory fee may cover portfolio management, planning, technology, staff, compliance, trading and monitoring in addition to direct advisor time. It is a comparison tool, not a stated hourly billing rate.</p>
+    <p>Your investment expenses in reality depend on holdings, balances, timing, cash and transactions. This is an estimate based on the weighted average you entered.</p>
+    <p>Receipts does not model trading spreads, tax consequences, surrender charges, performance fees, loads, commissions, insurance costs or platform fees. If you pay any of those, ask your advisor.</p>
+    <p>Receipts does not ask you to inventory which services you used. Whether a service was delivered, and whether it was personalized or model-driven, is something your advisor can answer directly and more accurately than you can guess. Those questions appear at the end of the receipt for that reason.</p>
+    <p>Receipts does not determine whether your advisory relationship is worth its cost.</p>
+    <h2 style="margin-top:18px">PRIVACY</h2>
+    <p>Your entries are calculated in your browser and never sent anywhere. Receipts does not require an account, makes no network requests, and contains no analytics or third-party scripts.</p>
+    <p>The web host that delivers this page records ordinary access logs when it loads &mdash; IP address, browser, timestamp &mdash; as every website does. It never sees what you type. The source code is public so you can confirm all of this yourself.</p>
+
+    <div class="gap"></div>
+    <div class="gap"></div>
+    <div class="ctr ink brand">RECEIPTS</div>
+    <div class="ctr sm">Created by Matt Mattheisen</div>
+    <div class="ctr sm">Shomer Analytics</div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var W = 32;
+var st = { pv:0, af:0, er:0, adv:0, inv:0, total:0, meetings:null, hours:null };
+
+var entry   = document.getElementById("entry");
+var strip   = document.getElementById("strip");
+var primary = document.getElementById("primary");
+var reduce  = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+var beat    = reduce ? 0 : 170;
+
+function cents(n){ return Math.round(n * 100) / 100; }
+function money(n){ return cents(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function wrap(text, width, firstPrefix, restPrefix){
+  var words = text.split(" "), lines = [], line = firstPrefix, pre = firstPrefix, avail;
+  for (var i=0;i<words.length;i++){
+    avail = width - line.length;
+    if (line === pre || avail >= words[i].length + 1){
+      line += (line === pre ? "" : " ") + words[i];
+    } else {
+      lines.push(line); pre = restPrefix; line = restPrefix + words[i];
+    }
+  }
+  lines.push(line);
+  return lines.join("\n");
+}
+
+function add(html, cls){
+  var d = document.createElement("div");
+  if (cls) d.className = cls;
+  d.innerHTML = html;
+  strip.appendChild(d);
+  return d;
+}
+function rule(){ add("--------------------------------","sep"); }
+function gap(n){ add("","gap" + (n === "s" ? "-s" : "")); }
+function pair(l,r,cls){ add("<span>"+esc(l)+"</span><span>"+esc(r)+"</span>","row" + (cls?" "+cls:"")); }
+
+/* ---------- date ---------- */
+var now = new Date();
+document.getElementById("datestamp").textContent =
+  now.toLocaleDateString("en-US",{month:"2-digit",day:"2-digit",year:"numeric"});
+
+/* ---------- entry ---------- */
+var pv = document.getElementById("pv"),
+    af = document.getElementById("af"),
+    er = document.getElementById("er"),
+    eerr = document.getElementById("entry-err");
+
+function clearErr(){ eerr.textContent = ""; }
+function showErr(msg, el){ eerr.textContent = ">> " + msg; if (el) el.focus(); }
+
+pv.addEventListener("input", function(){
+  var d = pv.value.replace(/[^0-9]/g,"");
+  pv.value = d ? Number(d).toLocaleString("en-US") : "";
+  clearErr();
+});
+[af,er].forEach(function(f){
+  f.addEventListener("input", function(){
+    var v = f.value.replace(/[^0-9.]/g,""), p = v.split(".");
+    if (p.length > 2) v = p[0] + "." + p.slice(1).join("");
+    f.value = v; clearErr();
+  });
+});
+[pv,af,er].forEach(function(f){
+  f.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); primary.click(); } });
+});
+
+function readEntry(){
+  var p = parseFloat(pv.value.replace(/,/g,"")),
+      a = parseFloat(af.value),
+      e = er.value.trim() === "" ? 0 : parseFloat(er.value);
+  if (isNaN(p) || p < 0){ showErr("ENTER A PORTFOLIO VALUE.", pv); return false; }
+  if (p > 1e9){ showErr("ENTER A PORTFOLIO VALUE UNDER $1 BILLION.", pv); return false; }
+  if (isNaN(a) || a < 0){ showErr("ENTER AN ADVISORY FEE PERCENTAGE.", af); return false; }
+  if (er.value.trim() !== "" && (isNaN(e) || e < 0)){ showErr("EXPENSE RATIO MUST BE 0 OR MORE.", er); return false; }
+  if (a > 10){ showErr("THAT FEE LOOKS UNUSUALLY HIGH. CHECK THE NUMBER.", af); return false; }
+  if (e > 10){ showErr("THAT EXPENSE RATIO LOOKS UNUSUALLY HIGH.", er); return false; }
+  st.pv = p; st.af = a; st.er = e;
+  // round each line to the penny first, then total the rounded lines, so the
+  // printed line items always sum exactly to the printed total
+  st.adv = cents(p * a / 100);
+  st.inv = cents(p * e / 100);
+  st.total = cents(st.adv + st.inv);
+  return true;
+}
+
+/* ---------- phase 1: the printed total ---------- */
+function printTotals(){
+  entry.querySelectorAll("input").forEach(function(i){ i.disabled = true; });
+
+  gap();
+  pair("QTY ITEM","AMOUNT");
+  rule();
+  gap();
+
+  pair("1  ADVISORY FEE", money(st.adv));
+  add("     @ " + st.af.toFixed(2) + "% OF " + money(st.pv), "sm");
+
+  if (st.er > 0){
+    gap();
+    pair("1  INVESTMENT EXP.", money(st.inv));
+    add("     @ " + st.er.toFixed(2) + "% WEIGHTED AVG", "sm");
+  }
+
+  gap();
+  rule();
+  gap();
+  add("TOTAL ANNUAL COST","tot-lab");
+  var amt = money(st.total);
+  var amtEl = add(esc(amt), "tot-amt");
+  amtEl.style.fontSize = Math.min(40, Math.floor(400 / amt.length)) + "px";
+  rule();
+  gap();
+  pair("  PER MONTH", money(st.total/12));
+  pair("  PER WEEK",  money(st.total/52));
+  pair("  PER DAY",   money(st.total/365));
+  gap();
+  rule();
+  add("WHAT DID YOU RECEIVE","ctr ink");
+  add("FOR THIS?","ctr ink");
+  rule();
+  gap();
+
+  primary.hidden = true;
+  setTimeout(askMeetings, beat * 2);
+}
+
+/* ---------- phase 2: meetings and hours ---------- */
+function askMeetings(){
+  var q = document.createElement("div");
+  q.innerHTML =
+    '<div class="sm">' + wrap("COUNT THE TIMES YOU ACTUALLY SAT DOWN WITH SOMEONE - IN PERSON, BY PHONE OR BY VIDEO.", W-2, "", "") + '</div>' +
+    '<div class="field-lab"><label for="mt">MEETINGS IN LAST 12 MONTHS</label></div>' +
+    '<div class="fill"><input id="mt" inputmode="numeric" autocomplete="off" placeholder="0"></div>' +
+    '<div class="field-lab"><label for="hr">EST. HOURS OF DIRECT TIME</label></div>' +
+    '<div class="fill"><input id="hr" inputmode="decimal" autocomplete="off" placeholder="0.0"></div>' +
+    '<div class="hint">OPTIONAL &middot; YOUR BEST ESTIMATE</div>' +
+    '<div class="err" id="hr-err" role="alert"></div>';
+  strip.appendChild(q);
+
+  var mt = q.querySelector("#mt"), hr = q.querySelector("#hr"), he = q.querySelector("#hr-err");
+  mt.addEventListener("input", function(){ mt.value = mt.value.replace(/[^0-9]/g,""); he.textContent=""; });
+  hr.addEventListener("input", function(){
+    var v = hr.value.replace(/[^0-9.]/g,""), p = v.split(".");
+    if (p.length > 2) v = p[0] + "." + p.slice(1).join("");
+    hr.value = v; he.textContent = "";
+  });
+  [mt,hr].forEach(function(f){
+    f.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); primary.click(); } });
+  });
+
+  primary.hidden = false;
+  primary.textContent = "CONTINUE";
+  primary.onclick = function(){
+    var m = mt.value.trim() === "" ? null : parseInt(mt.value,10);
+    var h = hr.value.trim() === "" ? null : parseFloat(hr.value);
+    if (m !== null && m < 0){ he.textContent = ">> MEETINGS CANNOT BE NEGATIVE."; mt.focus(); return; }
+    if (h !== null && (isNaN(h) || h <= 0)){ he.textContent = ">> HOURS MUST BE MORE THAN 0, OR LEAVE BLANK."; hr.focus(); return; }
+    st.meetings = m; st.hours = h;
+    q.remove();
+    finish();
+  };
+  if (!reduce) mt.focus();
+}
+
+/* ---------- phase 3: the rest of the strip ---------- */
+function finish(){
+  var any = (st.meetings !== null && st.meetings > 0) || st.hours !== null;
+
+  add("DIRECT PROFESSIONAL TIME","ink");
+  if (st.meetings !== null){
+    add("  " + st.meetings + " MEETING" + (st.meetings === 1 ? "" : "S") + " LAST 12 MONTHS", "sm");
+  }
+  if (st.hours !== null){
+    add("  " + st.hours.toFixed(1) + " HRS ESTIMATED BY YOU", "sm");
+  }
+  if (st.meetings === null && st.hours === null){
+    add("  NOT ESTIMATED", "sm");
+  }
+
+  if (st.meetings !== null && st.meetings > 0){
+    gap();
+    pair("  PER MEETING", money(st.total/st.meetings) + " *", "big");
+  }
+  if (st.hours !== null){
+    gap();
+    pair("  PER HOUR", money(st.total/st.hours) + " *", "big");
+  }
+
+  if (any){
+    gap();
+    add(wrap("AN ADVISORY FEE MAY COVER PORTFOLIO MANAGEMENT, PLANNING, TECHNOLOGY, STAFF, COMPLIANCE, TRADING AND MONITORING IN ADDITION TO TIME SPENT WITH YOU. THESE ARE COMPARISON FIGURES, NOT STATED BILLING RATES.", W-2, "* ", "  "), "sm");
+  }
+
+  gap();
+  rule();
+  add("IF YOUR PORTFOLIO DOUBLED","ink");
+  add("  AND THE % STAYED THE SAME","sm");
+  gap("s");
+  pair("  CURRENT FEE", money(st.adv), "sm");
+  pair("  HYPOTHETICAL", money(st.adv*2), "sm");
+  gap("s");
+  add(wrap("WOULD THE SERVICES YOU RECEIVE ALSO CHANGE? ASK YOUR ADVISOR HOW THE FEE SCALES AS YOUR ASSETS GROW.", W-2, "  ", "  "), "sm");
+
+  gap();
+  rule();
+  add("TAKE THIS TO YOUR","ctr ink");
+  add("NEXT MEETING","ctr ink");
+  rule();
+  gap();
+
+  questions().forEach(function(q,n){
+    add(wrap(q, W-2, "  " + (n+1) + ". ", "     "), "sm");
+    gap("s");
+  });
+
+  gap();
+  rule();
+  add(wrap("ALL FIGURES ARE ESTIMATES BASED ON VALUES YOU ENTERED. RECEIPTS DOES NOT VERIFY THEM AND DOES NOT DETERMINE WHETHER YOUR RELATIONSHIP IS WORTH ITS COST.", W-2, "", ""), "sm");
+  gap();
+  add("THANK YOU FOR YOUR BUSINESS","ctr");
+  gap();
+  add("CALCULATED IN YOUR BROWSER","ctr sm");
+  add("NOTHING TRANSMITTED OR STORED","ctr sm");
+
+  primary.textContent = "PRINT / SAVE AS PDF";
+  primary.onclick = function(){ window.print(); };
+  primary.focus();
+}
+
+function questions(){
+  // the closing question is pinned: it is the one that invites the advisor to
+  // make their own case, so it must never be trimmed away by the 8-question cap
+  var CLOSER = "WHAT DO YOU BELIEVE WERE THE MOST VALUABLE THINGS YOU DID FOR MY HOUSEHOLD LAST YEAR?";
+  var q = [];
+  q.push("EXACTLY HOW MUCH DID I PAY YOUR FIRM DURING THE LAST 12 MONTHS?");
+  q.push("WHAT OTHER FEES OR PRODUCT COSTS DID I PAY THAT ARE NOT IN YOUR ADVISORY FEE?");
+  q.push("WHICH SERVICES INCLUDED IN MY FEE WERE PERFORMED FOR MY HOUSEHOLD LAST YEAR?");
+  q.push("WHICH PORTFOLIO DECISIONS WERE SPECIFIC TO ME RATHER THAN CHANGES TO A FIRMWIDE MODEL?");
+  q.push("HOW MUCH OF THE PORTFOLIO-MANAGEMENT PROCESS IS AUTOMATED?");
+  if (st.er > 0) q.push("ARE LOWER-COST INVESTMENTS AVAILABLE THAT WOULD PROVIDE SIMILAR EXPOSURE?");
+  q.push("DOES YOUR FIRM OR AN AFFILIATE RECEIVE COMPENSATION RELATED TO ANY INVESTMENTS IN MY ACCOUNT?");
+  q.push("HOW DOES MY FEE CHANGE AS MY PORTFOLIO GROWS?");
+  return q.slice(0, 7).concat([CLOSER]);
+}
+
+/* ---------- wiring ---------- */
+function startPrint(){ if (readEntry()) printTotals(); }
+primary.onclick = startPrint;
+
+var restart = document.getElementById("restart");
+restart.addEventListener("click", function(){
+  strip.innerHTML = "";
+  st.meetings = null; st.hours = null;
+  entry.querySelectorAll("input").forEach(function(i){ i.disabled = false; });
+  clearErr();
+  primary.hidden = false;
+  primary.textContent = "PRINT MY RECEIPT";
+  primary.onclick = startPrint;
+  document.getElementById("paper").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  pv.focus();
+});
+
+var how = document.getElementById("howlink"), method = document.getElementById("method");
+how.addEventListener("click", function(){
+  var open = method.hidden;
+  method.hidden = !open;
+  how.setAttribute("aria-expanded", String(open));
+  how.textContent = open ? "Hide how this works" : "How this works";
+});
+
+})();
+</script>
+</body>
+</html>
